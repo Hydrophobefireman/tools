@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI Lib Starter</title>
+    <base href="/" />
+    <%= htmlWebpackPlugin.options.css %>
+    <!-- 
+      You can use this html file to add your own fonts, 
+      a best practice usage of font loading has been added for you.
+    -->
+    <link rel="preconnect" href="https://fonts.hpfm.dev" crossorigin />
+
+    <script data-js="touch-intent-css-fix">
+      /iPhone|iPod|iPad/.test(navigator.platform) &&
+        (document.head.appendChild(document.createElement("style")).innerText =
+          "*{cursor:pointer}");
+    </script>
+  </head>
+  <body>
+    <div id="app-mount">
+      <noscript>This App uses JavaScript...</noscript>
+    </div>
+  </body>
+</html>

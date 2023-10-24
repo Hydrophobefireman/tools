@@ -1,0 +1,6 @@
+:80 {
+  encode gzip
+  try_files {path} /
+  root * /site
+  file_server
+}

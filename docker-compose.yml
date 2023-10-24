@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  frontend:
+    restart: unless-stopped
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 127.0.0.1:11100:80
+    env_file: ./frontend/.env
+
+  backend:
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      secrets:
+        - maxmind_license_key
+    ports:
+      - 127.0.0.1:11101:8000
+
+secrets:
+  maxmind_license_key:
+    file: maxmind_license.txt

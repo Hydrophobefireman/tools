@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npx lint-staged
+echo "checking your types.."
+node_modules/.bin/tsc --noEmit -p ./frontend
