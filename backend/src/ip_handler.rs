@@ -1,9 +1,17 @@
+extern crate lazy_static;
 use std::net::IpAddr;
 
 use crate::err;
 use axum::Json;
-use maxminddb::geoip2;
+use maxminddb::{geoip2, MaxMindDBError};
 use serde::{Deserialize, Serialize};
+
+type MaxMindDBReadResult = Result<maxminddb::Reader<Vec<u8>>, MaxMindDBError>;
+
+lazy_static::lazy_static! {
+    static ref CITY_READER: MaxMindDBReadResult = maxminddb::Reader::open_readfile("/data/GeoIP/GeoLite2-City.mmdb");
+    static ref ASN_READER: MaxMindDBReadResult = maxminddb::Reader::open_readfile("/data/GeoIP/GeoLite2-ASN.mmdb") ;
+}
 
 const DEFAULT_CITY: geoip2::city::City = geoip2::city::City {
     geoname_id: None,
@@ -30,12 +38,24 @@ pub struct IPInfo {
 }
 
 pub fn fetch_ip_details(addr: IpAddr) -> axum::response::Result<Json<IPInfo>> {
-    let city_reader =
-        maxminddb::Reader::open_readfile("/data/GeoIP/GeoLite2-City.mmdb").map_err(err::err_handler)?;
-    let city: geoip2::City = city_reader.lookup(addr).map_err(err::err_handler)?;
-    let asn_reader =
-        maxminddb::Reader::open_readfile("/data/GeoIP/GeoLite2-ASN.mmdb").map_err(err::err_handler)?;
-    let asn: geoip2::Asn = asn_reader.lookup(addr).map_err(err::err_handler)?;
+    let city: geoip2::City = match CITY_READER.is_err() {
+        true => {
+            return Err(CITY_READER
+                .as_ref()
+                .err()
+                .map(err::err_handler)
+                .unwrap()
+                .into())
+        }
+        false => CITY_READER.as_ref().ok().unwrap(),
+    }
+    .lookup(addr)
+    .map_err(err::err_handler)?;
+    let asn: geoip2::Asn = ASN_READER
+        .as_ref()
+        .unwrap()
+        .lookup(addr)
+        .map_err(err::err_handler)?;
     Ok(Json(IPInfo {
         city: city
             .city

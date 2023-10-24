@@ -36,20 +36,14 @@ async fn get_ip_details(Query(payload): Query<IPPayload>) -> axum::response::Res
 
 #[tokio::main]
 async fn main() {
-    // initialize tracing
-    tracing_subscriber::fmt::init();
     let handle = Handle::new();
     // Spawn a task to gracefully shutdown server.
     tokio::spawn(graceful_shutdown(handle.clone()));
-    // build our application with a route
     let app = Router::new()
-        // `GET /` goes to `root`
         .route("/ip", get(root))
         .route("/ip/q", get(get_ip_details));
-    // run our app with hyper
-    // `axum::Server` is a re-export of `hyper::Server`
+
     let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
-    tracing::debug!("listening on {}", addr);
     axum_server::bind(addr)
         .handle(handle)
         .serve(app.into_make_service_with_connect_info::<SocketAddr>())
@@ -58,7 +52,6 @@ async fn main() {
 }
 
 async fn graceful_shutdown(handle: Handle) {
-    // Wait 10 seconds.
     sleep(Duration::from_secs(600)).await;
 
     println!("sending graceful shutdown signal");
