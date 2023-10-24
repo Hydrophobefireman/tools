@@ -5,12 +5,11 @@ ENV MAXMIND_BASE_URL "https://download.maxmind.com/app/geoip_download?license_ke
 
 
 RUN --mount=type=secret,id=maxmind_license_key \
-    export MAXMIND_LICENSE_KEY="$(cat /run/secrets/maxmind_license_key)" && \
-    export BASE=${MAXMIND_BASE_URL}${MAXMIND_LICENSE_KEY} \
-    wget "${BASE}&edition_id=GeoLite2-ASN&suffix=tar.gz" -O GeoLite2-ASN.tar.gz \
-    wget "${BASE}&edition_id=GeoLite2-ASN&suffix=tar.gz.sha256" -O GeoLite2-ASN.tar.gz.sha256  \
-    wget "${BASE}&edition_id=GeoLite2-City&suffix=tar.gz" -O GeoLite2-City.tar.gz \
-    wget "${BASE}&edition_id=GeoLite2-City&suffix=tar.gz.sha256" -O GeoLite2-City.tar.gz.sha256
+    URL="${MAXMIND_BASE_URL}$(cat /run/secrets/maxmind_license_key)" && \
+    wget "${URL}&edition_id=GeoLite2-ASN&suffix=tar.gz" -O GeoLite2-ASN.tar.gz && \
+    wget "${URL}&edition_id=GeoLite2-ASN&suffix=tar.gz.sha256" -O GeoLite2-ASN.tar.gz.sha256 && \
+    wget "${URL}&edition_id=GeoLite2-City&suffix=tar.gz" -O GeoLite2-City.tar.gz && \
+    wget "${URL}&edition_id=GeoLite2-City&suffix=tar.gz.sha256" -O GeoLite2-City.tar.gz.sha256
 
 RUN sed 's/GeoLite2-ASN_[0-9]*.tar.gz/GeoLite2-ASN.tar.gz/g' -i GeoLite2-ASN.tar.gz.sha256
 RUN sha256sum -c GeoLite2-ASN.tar.gz.sha256
@@ -23,14 +22,20 @@ RUN tar xvf GeoLite2-City.tar.gz --strip 1
 
 FROM rust:latest as builder
 WORKDIR /app
+
+RUN rustup target add x86_64-unknown-linux-musl
+RUN apt update && apt install -y musl-tools musl-dev
+RUN update-ca-certificates
+
 COPY . .
-RUN cargo build --release
+RUN cargo build --target x86_64-unknown-linux-musl --release
 
 #
-FROM debian:stable-slim
+FROM alpine:latest
 WORKDIR /app
 RUN mkdir -p /data/GeoIP
 COPY --from=prepare /GeoLite2/*.mmdb /data/GeoIP
-COPY --from=builder /app/target/release/hpfm-tool-api /app/hpfm-tool-api
-EXPOSE 80
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/hpfm-tool-api ./
+
+EXPOSE 8000
 CMD ["./hpfm-tool-api"]

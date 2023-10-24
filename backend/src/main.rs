@@ -2,9 +2,9 @@ mod err;
 mod ip_handler;
 
 use axum::{
-    extract::ConnectInfo,
+    extract::{ConnectInfo, Query},
     http::HeaderMap,
-    routing::{get, post},
+    routing::get,
     Json, Router,
 };
 use axum_server::Handle;
@@ -15,6 +15,9 @@ use std::{
     time::Duration,
 };
 use tokio::time::sleep;
+
+#[global_allocator]
+static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 // basic handler that responds with a static string
 async fn root(
@@ -27,7 +30,7 @@ async fn root(
     fetch_ip_details(maybe_ip.unwrap_or_else(|| Ok(addr.ip())).unwrap())
 }
 
-async fn get_ip_details(Json(payload): Json<IPPayload>) -> axum::response::Result<Json<IPInfo>> {
+async fn get_ip_details(Query(payload): Query<IPPayload>) -> axum::response::Result<Json<IPInfo>> {
     fetch_ip_details(IpAddr::from_str(&payload.ip).unwrap())
 }
 
@@ -42,7 +45,7 @@ async fn main() {
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/ip", get(root))
-        .route("/ip", post(get_ip_details));
+        .route("/ip/q", get(get_ip_details));
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
     let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
