@@ -35,7 +35,7 @@ FROM alpine:latest
 WORKDIR /app
 RUN mkdir -p /data/GeoIP
 COPY --from=prepare /GeoLite2/*.mmdb /data/GeoIP
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/hpfm-tool-api ./
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/tool-api ./
 
 EXPOSE 8000
-CMD ["./hpfm-tool-api"]
+CMD ["./tool-api"]

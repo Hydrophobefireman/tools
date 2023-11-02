@@ -238,21 +238,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d77f7ec81a6d05a3abb01ab6eb7590f6083d08449fe5a1c8b1e620283546ccb7"
 
 [[package]]
-name = "hpfm-tool-api"
-version = "0.1.0"
-dependencies = [
- "axum",
- "axum-server",
- "lazy_static",
- "maxminddb",
- "serde",
- "tikv-jemallocator",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "http"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -703,6 +688,21 @@ dependencies = [
  "pin-project-lite",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "tool-api"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "axum-server",
+ "lazy_static",
+ "maxminddb",
+ "serde",
+ "tikv-jemallocator",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
