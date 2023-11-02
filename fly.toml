@@ -7,6 +7,7 @@ app = "tool-api"
 primary_region = "ord"
 
 [build]
+image = "tools-backend"
 
 [http_service]
   internal_port = 8000
