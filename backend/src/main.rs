@@ -52,13 +52,26 @@ async fn main() {
                         Some(q) => format!("?{q}"),
                         _ => "".into(),
                     };
+                    let remote_addr = request
+                        .headers()
+                        .get("Fly-Client-Ip")
+                        .map(|x| x.to_str().unwrap().to_string())
+                        .unwrap_or_else(|| {
+                            request
+                                .extensions()
+                                .get::<ConnectInfo<SocketAddr>>()
+                                .map(|x| x.to_string())
+                                .unwrap()
+                        });
+
                     let headers = request.headers();
                     let user_agent = match headers.get("user-agent") {
                         Some(agent) => agent.to_str().unwrap(),
                         _ => "unknown",
                     };
                     tracing::info!(
-                        "request: {} {}{} - {}",
+                        "request: {} {} {}{} - {}",
+                        remote_addr,
                         request.method(),
                         request.uri().path(),
                         query,

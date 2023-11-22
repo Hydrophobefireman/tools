@@ -30,11 +30,11 @@
           maxMindKey = builtins.readFile ./maxmind_license.txt;
           maxMindBaseUrl ="https://download.maxmind.com/app/geoip_download?license_key=${maxMindKey}";
           
-          geolite_asn = fetchTarball { url = "${maxMindBaseUrl}&edition_id=GeoLite2-ASN&suffix=tar.gz"; sha256 = "0raph0bsy5lpsg762fdxazkp1by1n5ap6s5jv5slyk6nqb9jqc2h"; };
-          geolite_asn_city = fetchTarball { url = "${maxMindBaseUrl}&edition_id=GeoLite2-City&suffix=tar.gz"; sha256 = "0hi9lc8wnq3f5kwqxw9llnxrm9lh7s9a6hah41107yr66qpdivsd";  };
+          geolite_asn = fetchTarball { url = "${maxMindBaseUrl}&edition_id=GeoLite2-ASN&suffix=tar.gz"; sha256 = "0ryax5jda6s1rzjxqxhcqlfl9j1mlapmnrfmy7859xibciqw841h"; };
+          geolite_asn_city = fetchTarball { url = "${maxMindBaseUrl}&edition_id=GeoLite2-City&suffix=tar.gz"; sha256 = "0qnhvcfmvd2yczfsx749i7xsj586xkb4zcbd8d8isp67rmskdw21";  };
 
     
-          nativeBuildInputs = [pkgs.glibc];
+          nativeBuildInputs = [];
           buildInputs = with pkgs; [ rust-bin.stable.latest.default  ];
           craneLib = crane.lib.${system};
           src = craneLib.cleanCargoSource (craneLib.path ./backend);
