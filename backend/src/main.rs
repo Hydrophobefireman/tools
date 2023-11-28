@@ -20,7 +20,7 @@ use tower_http::trace::TraceLayer;
 use tracing::Span;
 
 // basic handler that responds with a static string
-async fn root(
+async fn get_client_ip_details(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
 ) -> axum::response::Result<Json<IPInfo>> {
@@ -30,8 +30,19 @@ async fn root(
     fetch_ip_details(maybe_ip.unwrap_or_else(|| Ok(addr.ip())).unwrap())
 }
 
-async fn get_ip_details(Query(payload): Query<IPPayload>) -> axum::response::Result<Json<IPInfo>> {
+async fn get_ip_details_from_q(
+    Query(payload): Query<IPPayload>,
+) -> axum::response::Result<Json<IPInfo>> {
     fetch_ip_details(IpAddr::from_str(&payload.ip).unwrap())
+}
+
+async fn get_client_ip_details_raw(
+    conn: ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
+) -> axum::response::Result<String> {
+    let x = get_client_ip_details(conn, headers).await?;
+    Ok(x.ip.clone())
+    
 }
 
 #[tokio::main]
@@ -43,8 +54,9 @@ async fn main() {
     // Spawn a task to gracefully shutdown server.
     tokio::spawn(graceful_shutdown(handle.clone()));
     let app = Router::new()
-        .route("/ip", get(root))
-        .route("/ip/q", get(get_ip_details))
+        .route("/ip", get(get_client_ip_details))
+        .route("/ip/q", get(get_ip_details_from_q))
+        .route("/ip/raw", get(get_client_ip_details_raw))
         .layer(
             TraceLayer::new_for_http()
                 .on_request(|request: &Request<Body>, _span: &Span| {

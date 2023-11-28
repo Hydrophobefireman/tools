@@ -31,10 +31,10 @@ pub struct IPPayload {
 
 #[derive(Serialize)]
 pub struct IPInfo {
-    city: Option<String>,
-    country: Option<String>,
-    asn: Option<String>,
-    ip: String,
+    pub city: Option<String>,
+    pub country: Option<String>,
+    pub asn: Option<String>,
+    pub ip: String,
 }
 
 pub fn fetch_ip_details(addr: IpAddr) -> axum::response::Result<Json<IPInfo>> {

@@ -30,8 +30,8 @@
           maxMindKey = builtins.readFile ./maxmind_license.txt;
           maxMindBaseUrl ="https://download.maxmind.com/app/geoip_download?license_key=${maxMindKey}";
           
-          geolite_asn = fetchTarball { url = "${maxMindBaseUrl}&edition_id=GeoLite2-ASN&suffix=tar.gz"; sha256 = "0ryax5jda6s1rzjxqxhcqlfl9j1mlapmnrfmy7859xibciqw841h"; };
-          geolite_asn_city = fetchTarball { url = "${maxMindBaseUrl}&edition_id=GeoLite2-City&suffix=tar.gz"; sha256 = "0qnhvcfmvd2yczfsx749i7xsj586xkb4zcbd8d8isp67rmskdw21";  };
+          geolite_asn = fetchTarball { url = "${maxMindBaseUrl}&edition_id=GeoLite2-ASN&suffix=tar.gz"; sha256 = "1l7vykapcgsncaqc18479f6c83c71xpsl6qwqf18s0ll2aclgj3y"; };
+          geolite_asn_city = fetchTarball { url = "${maxMindBaseUrl}&edition_id=GeoLite2-City&suffix=tar.gz"; sha256 = "11gcjmryx1hdcxrqpla6f0jmmg9h035040vv3scwxf3j5bynijjg";  };
 
     
           nativeBuildInputs = [];

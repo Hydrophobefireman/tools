@@ -18,3 +18,8 @@ frontend:
 
 clean:
     rm -rf result
+
+run:
+    #!/bin/bash -eux
+    cd backend
+    cargo run
