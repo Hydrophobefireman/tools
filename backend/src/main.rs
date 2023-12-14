@@ -8,14 +8,12 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use axum_server::Handle;
 use ip_handler::{fetch_ip_details, IPInfo, IPPayload};
 use std::{
     net::{IpAddr, SocketAddr},
     str::FromStr,
     time::Duration,
 };
-use tokio::time::sleep;
 use tower_http::trace::TraceLayer;
 use tracing::Span;
 
@@ -42,17 +40,15 @@ async fn get_client_ip_details_raw(
 ) -> axum::response::Result<String> {
     let x = get_client_ip_details(conn, headers).await?;
     Ok(x.ip.clone())
-    
 }
 
 #[tokio::main]
 async fn main() {
-    let handle = Handle::new();
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         .init();
     // Spawn a task to gracefully shutdown server.
-    tokio::spawn(graceful_shutdown(handle.clone()));
+
     let app = Router::new()
         .route("/ip", get(get_client_ip_details))
         .route("/ip/q", get(get_ip_details_from_q))
@@ -99,24 +95,7 @@ async fn main() {
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
     axum_server::bind(addr)
-        .handle(handle)
         .serve(app.into_make_service_with_connect_info::<SocketAddr>())
         .await
         .unwrap();
-}
-
-async fn graceful_shutdown(handle: Handle) {
-    sleep(Duration::from_secs(600)).await;
-
-    println!("sending graceful shutdown signal");
-
-    // Signal the server to shutdown using Handle.
-    handle.graceful_shutdown(Some(Duration::from_secs(30)));
-
-    // Print alive connection count every second.
-    loop {
-        sleep(Duration::from_secs(1)).await;
-
-        println!("alive connections: {}", handle.connection_count());
-    }
 }
